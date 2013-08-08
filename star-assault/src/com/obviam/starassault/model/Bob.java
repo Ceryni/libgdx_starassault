@@ -10,6 +10,34 @@ import com.badlogic.gdx.math.Vector2;
  */
 public class Bob {
 
+    public void setFacingLeft(boolean facingLeft) {
+        this.facingLeft = facingLeft;
+    }
+
+    public boolean isFacingLeft() {
+        return facingLeft;
+    }
+
+    public void setState(State state) {
+        this.state = state;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public Vector2 getVelocity() {
+        return velocity;
+    }
+
+    public Vector2 getAcceleration() {
+        return acceleration;
+    }
+
+    public void update(float delta) {
+        //TODO: Finish the guts
+    }
+
     public enum State {
         IDLE, WALKING, JUMPING, DYING
     }
