@@ -1,0 +1,102 @@
+
+textures.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+star-assault-android/assets/data/images/block
+  rotate: false
+  xy: 1, 11
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+star-assault-android/assets/data/images/bob-01
+  rotate: false
+  xy: 51, 31
+  size: 24, 28
+  orig: 24, 28
+  offset: 0, 0
+  index: -1
+star-assault-android/assets/data/images/bob-02
+  rotate: false
+  xy: 77, 31
+  size: 24, 28
+  orig: 24, 28
+  offset: 0, 0
+  index: -1
+star-assault-android/assets/data/images/bob-05
+  rotate: false
+  xy: 103, 31
+  size: 24, 28
+  orig: 24, 28
+  offset: 0, 0
+  index: -1
+star-assault-android/assets/data/images/bob-03
+  rotate: false
+  xy: 51, 3
+  size: 24, 26
+  orig: 24, 26
+  offset: 0, 0
+  index: -1
+star-assault-android/assets/data/images/bob-04
+  rotate: false
+  xy: 77, 3
+  size: 24, 26
+  orig: 24, 26
+  offset: 0, 0
+  index: -1
+star-assault-android/assets/data/images/bob-06
+  rotate: false
+  xy: 103, 1
+  size: 24, 28
+  orig: 24, 28
+  offset: 0, 0
+  index: -1
+
+textures2.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+star-assault-android/assets/data/textures/textures
+  rotate: false
+  xy: 1, 1
+  size: 128, 64
+  orig: 128, 64
+  offset: 0, 0
+  index: -1
+
+textures3.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+star-assault-android/res/drawable-hdpi/ic_launcher
+  rotate: false
+  xy: 1, 1
+  size: 72, 72
+  orig: 72, 72
+  offset: 0, 0
+  index: -1
+
+textures4.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+star-assault-android/res/drawable-ldpi/ic_launcher
+  rotate: false
+  xy: 1, 1
+  size: 36, 36
+  orig: 36, 36
+  offset: 0, 0
+  index: -1
+
+textures5.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+star-assault-android/res/drawable-mdpi/ic_launcher
+  rotate: false
+  xy: 1, 1
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1

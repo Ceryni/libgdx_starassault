@@ -9,40 +9,11 @@ import com.badlogic.gdx.math.Vector2;
  * Time: 8:31 PM
  */
 public class Bob {
-
-    public void setFacingLeft(boolean facingLeft) {
-        this.facingLeft = facingLeft;
-    }
-
-    public boolean isFacingLeft() {
-        return facingLeft;
-    }
-
-    public void setState(State state) {
-        this.state = state;
-    }
-
-    public State getState() {
-        return state;
-    }
-
-    public Vector2 getVelocity() {
-        return velocity;
-    }
-
-    public Vector2 getAcceleration() {
-        return acceleration;
-    }
-
-    public void update(float delta) {
-        //TODO: Finish the guts
-    }
-
     public enum State {
         IDLE, WALKING, JUMPING, DYING
     }
 
-    public static final float SPEED = 2f; //unit per second
+    public static final float SPEED = 4f; //unit per second
     public static final float JUMP_VELOCITY = 1f;
     public static final float SIZE = 0.5f; //half a unit
 
@@ -59,11 +30,55 @@ public class Bob {
         this.bounds.width = SIZE;
     }
 
-    public Rectangle getBounds() {
-        return bounds;
+    public void update(float delta) {
+        position.add(velocity.cpy().mul(delta));
     }
 
     public Vector2 getPosition() {
         return position;
+    }
+
+    public void setPosition(Vector2 position) {
+        this.position = position;
+    }
+
+    public Vector2 getAcceleration() {
+        return acceleration;
+    }
+
+    public void setAcceleration(Vector2 acceleration) {
+        this.acceleration = acceleration;
+    }
+
+    public Vector2 getVelocity() {
+        return velocity;
+    }
+
+    public void setVelocity(Vector2 velocity) {
+        this.velocity = velocity;
+    }
+
+    public Rectangle getBounds() {
+        return bounds;
+    }
+
+    public void setBounds(Rectangle bounds) {
+        this.bounds = bounds;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
+    }
+
+    public boolean isFacingLeft() {
+        return facingLeft;
+    }
+
+    public void setFacingLeft(boolean facingLeft) {
+        this.facingLeft = facingLeft;
     }
 }
