@@ -24,12 +24,13 @@ public class GameScreen implements Screen {
 
     @Override
     public void resize(int i, int i2) {
+        renderer.setSize(i, i2);
     }
 
     @Override
     public void show() {
         world = new World();
-        renderer = new WorldRenderer(world);
+        renderer = new WorldRenderer(world, true);
     }
 
     @Override
