@@ -4,7 +4,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.obviam.starassault.model.Block;
@@ -19,6 +22,13 @@ import com.obviam.starassault.model.World;
 public class WorldRenderer {
     public static final float CAMERA_WIDTH = 10f;
     public static final float CAMERA_HEIGHT = 7f;
+    public static final float RUNNING_FRAME_DURATION = 0.06f;
+
+    public static final float VIRTUAL_WIDTH = 480f;
+    public static final float VIRTUAL_HEIGHT = 320f;
+    public static final float ASPECT_RATIO = VIRTUAL_WIDTH / VIRTUAL_HEIGHT;
+    private float width;
+    private float height;
 
     private World world;
     private OrthographicCamera camera;
@@ -26,21 +36,24 @@ public class WorldRenderer {
 //    debug rendering
     ShapeRenderer debugRenderer = new ShapeRenderer();
 
-    private Texture bobTexture;
-    private Texture blockTexture;
+    private TextureRegion blockTexture;
+    private TextureRegion bobIdleLeft;
+    private TextureRegion bobIdleRight;
+    private TextureRegion bobFrame;
+
+    private Animation walkLeftAnimation;
+    private Animation walkRightAnimation;
 
     private SpriteBatch spriteBatch;
     private boolean debug = false;
-    private int width;
-    private int height;
     private float ppuX;
     private float ppuY;
 
     public void setSize (int w, int h){
-        this.width = w;
-        this.height = h;
-        ppuX = (float)480 / CAMERA_WIDTH;
-        ppuY = (float)320 / CAMERA_HEIGHT;
+        width = (float) w;
+        height = (float) h;
+        ppuX = width / CAMERA_WIDTH;
+        ppuY = height / CAMERA_HEIGHT;
     }
 
     public WorldRenderer(World world, boolean debug){
@@ -54,12 +67,29 @@ public class WorldRenderer {
     }
 
     private void loadTextures() {
-        bobTexture =  new Texture(Gdx.files.internal("data/bob_01.png"));
-        blockTexture =  new Texture(Gdx.files.internal("data/block.png"));
+        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("data/textures/textures.pack"));
+
+        bobIdleLeft = atlas.findRegion("bob-01");
+
+        bobIdleRight = new TextureRegion(bobIdleLeft);
+        bobIdleRight.flip(true, false);
+        blockTexture = atlas.findRegion("block");
+
+        TextureRegion[] walkLeftFrames = new TextureRegion[5];
+        for (int i = 0; i < 5; i++){
+            walkLeftFrames[i] = atlas.findRegion("bob-0" + (i + 2));
+        }
+        walkLeftAnimation = new Animation(RUNNING_FRAME_DURATION, walkLeftFrames);
+
+        TextureRegion[] walkRightFrames = new TextureRegion[5];
+        for (int i = 0; i < 5; i++){
+            walkRightFrames[i] = new TextureRegion(walkLeftFrames[i]);
+            walkRightFrames[i].flip(true, false);
+        }
+        walkRightAnimation = new Animation(RUNNING_FRAME_DURATION, walkRightFrames);
     }
 
     public void render(){
-
         spriteBatch.begin();
         drawBlocks();
         drawBob();
@@ -92,8 +122,15 @@ public class WorldRenderer {
 
     private void drawBob() {
         Bob bob = world.getBob();
+        bobFrame = bob.isFacingLeft() ? bobIdleLeft : bobIdleRight;
+        if(bob.getState().equals(Bob.State.WALKING)){
+            bobFrame = bob.isFacingLeft()
+                    ? walkLeftAnimation.getKeyFrame(bob.getStateTime(), true)
+                    : walkRightAnimation.getKeyFrame(bob.getStateTime(), true);
+        }
+
         spriteBatch.draw(
-                bobTexture,
+                bobFrame,
                 bob.getPosition().x * ppuX,
                 bob.getPosition().y * ppuY,
                 Bob.SIZE * ppuX,
@@ -102,13 +139,16 @@ public class WorldRenderer {
     }
 
     private void drawBlocks() {
+        float newWidth = Block.SIZE * ppuX;
+        float newHeight = Block.SIZE * ppuY;
+
         for (Block block : world.getBlocks()){
             spriteBatch.draw(
                     blockTexture,
-                    block.getPosition().x * ppuX,
+                    block.getPosition().x * ppuX ,
                     block.getPosition().y * ppuY,
-                    Block.SIZE * ppuX,
-                    Block.SIZE * ppuY
+                    newWidth,
+                    newHeight
             );
         }
     }

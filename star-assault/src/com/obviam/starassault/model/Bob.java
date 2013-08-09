@@ -23,6 +23,7 @@ public class Bob {
     Rectangle bounds = new Rectangle();
     State state = State.IDLE;
     boolean facingLeft = true;
+    float stateTime = 0;
 
     public Bob(Vector2 position){
         this.position = position;
@@ -31,6 +32,7 @@ public class Bob {
     }
 
     public void update(float delta) {
+        stateTime += delta;
         position.add(velocity.cpy().mul(delta));
     }
 
@@ -80,5 +82,13 @@ public class Bob {
 
     public void setFacingLeft(boolean facingLeft) {
         this.facingLeft = facingLeft;
+    }
+
+    public float getStateTime() {
+        return stateTime;
+    }
+
+    public void setStateTime(float stateTime) {
+        this.stateTime = stateTime;
     }
 }
