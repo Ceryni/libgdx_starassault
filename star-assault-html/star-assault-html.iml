@@ -12,6 +12,9 @@
     <orderEntry type="module" module-name="star-assault" />
     <orderEntry type="module" module-name="star-assault-desktop" />
     <orderEntry type="module" module-name="star-assault-android" />
+    <orderEntry type="module" module-name="star-assault-android" />
+    <orderEntry type="module" module-name="star-assault" />
+    <orderEntry type="module" module-name="star-assault-desktop" />
   </component>
 </module>
 
