@@ -2,7 +2,7 @@ package com.obviam.starassault.screens;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL10;
-import com.obviam.starassault.controller.WorldController;
+import com.obviam.starassault.controller.BobController;
 import com.obviam.starassault.model.World;
 import com.obviam.starassault.view.WorldRenderer;
 
@@ -14,7 +14,7 @@ import com.obviam.starassault.view.WorldRenderer;
 public class GameScreen implements Screen, InputProcessor {
     private World world;
     private WorldRenderer renderer;
-    private WorldController controller;
+    private BobController controller;
     private int width;
     private int height;
 
@@ -37,7 +37,7 @@ public class GameScreen implements Screen, InputProcessor {
     public void show() {
         world = new World();
         renderer = new WorldRenderer(world, false);
-        controller = new WorldController(world);
+        controller = new BobController(world);
         Gdx.input.setInputProcessor(this);
     }
 
@@ -73,6 +73,11 @@ public class GameScreen implements Screen, InputProcessor {
         if (i == Input.Keys.X) {
             controller.firePressed();
         }
+
+        if (i == Input.Keys.D){
+            renderer.setDebug(!renderer.isDebug());
+        }
+
         return true;
     }
 

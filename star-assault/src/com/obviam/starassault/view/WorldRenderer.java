@@ -3,7 +3,6 @@ package com.obviam.starassault.view;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -23,47 +22,45 @@ public class WorldRenderer {
     public static final float CAMERA_WIDTH = 10f;
     public static final float CAMERA_HEIGHT = 7f;
     public static final float RUNNING_FRAME_DURATION = 0.06f;
-
     public static final float VIRTUAL_WIDTH = 480f;
     public static final float VIRTUAL_HEIGHT = 320f;
     public static final float ASPECT_RATIO = VIRTUAL_WIDTH / VIRTUAL_HEIGHT;
+    //    debug rendering
+    ShapeRenderer debugRenderer = new ShapeRenderer();
     private float width;
     private float height;
-
     private World world;
     private OrthographicCamera camera;
-
-//    debug rendering
-    ShapeRenderer debugRenderer = new ShapeRenderer();
-
     private TextureRegion blockTexture;
     private TextureRegion bobIdleLeft;
     private TextureRegion bobIdleRight;
     private TextureRegion bobFrame;
-
+    private TextureRegion bobJumpLeft;
+    private TextureRegion bobJumpRight;
+    private TextureRegion bobFallLeft;
+    private TextureRegion bobFallRight;
     private Animation walkLeftAnimation;
     private Animation walkRightAnimation;
-
     private SpriteBatch spriteBatch;
     private boolean debug = false;
     private float ppuX;
     private float ppuY;
 
-    public void setSize (int w, int h){
-        width = (float) w;
-        height = (float) h;
-        ppuX = width / CAMERA_WIDTH;
-        ppuY = height / CAMERA_HEIGHT;
-    }
-
-    public WorldRenderer(World world, boolean debug){
+    public WorldRenderer(World world, boolean debug) {
         this.world = world;
         this.camera = new OrthographicCamera(CAMERA_WIDTH, CAMERA_HEIGHT);
-        this.camera.position.set(CAMERA_WIDTH / 2f, CAMERA_HEIGHT /2f, 0);
+        this.camera.position.set(CAMERA_WIDTH / 2f, CAMERA_HEIGHT / 2f, 0);
         this.camera.update();
         this.debug = debug;
         spriteBatch = new SpriteBatch();
         loadTextures();
+    }
+
+    public void setSize(int w, int h) {
+        width = (float) w;
+        height = (float) h;
+        ppuX = width / CAMERA_WIDTH;
+        ppuY = height / CAMERA_HEIGHT;
     }
 
     private void loadTextures() {
@@ -76,25 +73,32 @@ public class WorldRenderer {
         blockTexture = atlas.findRegion("block");
 
         TextureRegion[] walkLeftFrames = new TextureRegion[5];
-        for (int i = 0; i < 5; i++){
+        for (int i = 0; i < 5; i++) {
             walkLeftFrames[i] = atlas.findRegion("bob-0" + (i + 2));
         }
         walkLeftAnimation = new Animation(RUNNING_FRAME_DURATION, walkLeftFrames);
 
         TextureRegion[] walkRightFrames = new TextureRegion[5];
-        for (int i = 0; i < 5; i++){
+        for (int i = 0; i < 5; i++) {
             walkRightFrames[i] = new TextureRegion(walkLeftFrames[i]);
             walkRightFrames[i].flip(true, false);
         }
         walkRightAnimation = new Animation(RUNNING_FRAME_DURATION, walkRightFrames);
+
+        bobFallLeft = atlas.findRegion("bob-down");
+        bobFallRight = bobFallLeft;
+        bobFallRight.flip(true, false);
+        bobJumpLeft = atlas.findRegion("bob-up");
+        bobJumpRight = bobJumpLeft;
+        bobJumpRight.flip(true, false);
     }
 
-    public void render(){
+    public void render() {
         spriteBatch.begin();
         drawBlocks();
         drawBob();
         spriteBatch.end();
-        if(debug){
+        if (debug) {
             drawDebug();
         }
     }
@@ -103,7 +107,7 @@ public class WorldRenderer {
         //        render blocks
         debugRenderer.setProjectionMatrix(camera.combined);
         debugRenderer.begin(ShapeRenderer.ShapeType.Line);
-        for (Block block : world.getBlocks()){
+        for (Block block : world.getBlocks()) {
             Rectangle rectangle = block.getBounds();
             float x1 = block.getPosition().x + rectangle.x;
             float y1 = block.getPosition().y + rectangle.y;
@@ -123,10 +127,22 @@ public class WorldRenderer {
     private void drawBob() {
         Bob bob = world.getBob();
         bobFrame = bob.isFacingLeft() ? bobIdleLeft : bobIdleRight;
-        if(bob.getState().equals(Bob.State.WALKING)){
+        if (bob.getState().equals(Bob.State.WALKING)) {
             bobFrame = bob.isFacingLeft()
                     ? walkLeftAnimation.getKeyFrame(bob.getStateTime(), true)
                     : walkRightAnimation.getKeyFrame(bob.getStateTime(), true);
+        }
+
+        if(bob.getState().equals(Bob.State.JUMPING)){
+            if (bob.getVelocity().y > 0){
+                bobFrame = bob.isFacingLeft()
+                        ? bobJumpLeft
+                        : bobJumpRight;
+            } else{
+                bobFrame = bob.isFacingLeft()
+                        ? bobFallLeft
+                        : bobFallRight;
+            }
         }
 
         spriteBatch.draw(
@@ -142,14 +158,22 @@ public class WorldRenderer {
         float newWidth = Block.SIZE * ppuX;
         float newHeight = Block.SIZE * ppuY;
 
-        for (Block block : world.getBlocks()){
+        for (Block block : world.getBlocks()) {
             spriteBatch.draw(
                     blockTexture,
-                    block.getPosition().x * ppuX ,
+                    block.getPosition().x * ppuX,
                     block.getPosition().y * ppuY,
                     newWidth,
                     newHeight
             );
         }
+    }
+
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
     }
 }

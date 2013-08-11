@@ -33,7 +33,7 @@ public class Bob {
 
     public void update(float delta) {
         stateTime += delta;
-        position.add(velocity.cpy().mul(delta));
+        position.add(velocity.cpy().scl(delta));
     }
 
     public Vector2 getPosition() {
