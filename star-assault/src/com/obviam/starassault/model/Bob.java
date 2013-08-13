@@ -27,13 +27,15 @@ public class Bob {
 
     public Bob(Vector2 position){
         this.position = position;
+        this.bounds.x = position.x;
+        this.bounds.y = position.y;
         this.bounds.height = SIZE;
         this.bounds.width = SIZE;
     }
 
     public void update(float delta) {
         stateTime += delta;
-        position.add(velocity.cpy().scl(delta));
+//        position.add(velocity.cpy().scl(delta));
     }
 
     public Vector2 getPosition() {
@@ -42,6 +44,8 @@ public class Bob {
 
     public void setPosition(Vector2 position) {
         this.position = position;
+        this.bounds.setX(position.x);
+        this.bounds.setY(position.y);
     }
 
     public Vector2 getAcceleration() {

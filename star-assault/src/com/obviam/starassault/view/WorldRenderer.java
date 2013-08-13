@@ -98,21 +98,32 @@ public class WorldRenderer {
         drawBlocks();
         drawBob();
         spriteBatch.end();
+        drawCollisionBlocks();
         if (debug) {
             drawDebug();
         }
+    }
+
+    private void drawCollisionBlocks() {
+        debugRenderer.setProjectionMatrix(camera.combined);
+        debugRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        debugRenderer.setColor(new Color(1, 1, 1, 1));
+        for (Rectangle rectangle : world.getCollisionRects()){
+            debugRenderer.rect(rectangle.x, rectangle.y, rectangle.getWidth(), rectangle.getHeight());
+        }
+        debugRenderer.end();
     }
 
     private void drawDebug() {
         //        render blocks
         debugRenderer.setProjectionMatrix(camera.combined);
         debugRenderer.begin(ShapeRenderer.ShapeType.Line);
-        for (Block block : world.getBlocks()) {
-            Rectangle rectangle = block.getBounds();
-            float x1 = block.getPosition().x + rectangle.x;
-            float y1 = block.getPosition().y + rectangle.y;
-            debugRenderer.setColor(new Color(1, 0, 0, 1));
-            debugRenderer.rect(x1, y1, rectangle.width, rectangle.height);
+        for (Block block : world.getDrawableBlocks((int)CAMERA_WIDTH, (int)CAMERA_HEIGHT)) {
+                Rectangle rectangle = block.getBounds();
+                float x1 = block.getPosition().x + rectangle.x;
+                float y1 = block.getPosition().y + rectangle.y;
+                debugRenderer.setColor(new Color(1, 0, 0, 1));
+                debugRenderer.rect(x1, y1, rectangle.width, rectangle.height);
         }
 
         Bob bob = world.getBob();
@@ -133,12 +144,12 @@ public class WorldRenderer {
                     : walkRightAnimation.getKeyFrame(bob.getStateTime(), true);
         }
 
-        if(bob.getState().equals(Bob.State.JUMPING)){
-            if (bob.getVelocity().y > 0){
+        if (bob.getState().equals(Bob.State.JUMPING)) {
+            if (bob.getVelocity().y > 0) {
                 bobFrame = bob.isFacingLeft()
                         ? bobJumpLeft
                         : bobJumpRight;
-            } else{
+            } else {
                 bobFrame = bob.isFacingLeft()
                         ? bobFallLeft
                         : bobFallRight;
@@ -158,7 +169,7 @@ public class WorldRenderer {
         float newWidth = Block.SIZE * ppuX;
         float newHeight = Block.SIZE * ppuY;
 
-        for (Block block : world.getBlocks()) {
+        for (Block block : world.getDrawableBlocks((int) CAMERA_WIDTH, (int) CAMERA_HEIGHT)) {
             spriteBatch.draw(
                     blockTexture,
                     block.getPosition().x * ppuX,

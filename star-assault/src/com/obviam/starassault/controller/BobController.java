@@ -1,5 +1,9 @@
 package com.obviam.starassault.controller;
 
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Pool;
+import com.obviam.starassault.model.Block;
 import com.obviam.starassault.model.Bob;
 import com.obviam.starassault.model.World;
 
@@ -28,6 +32,13 @@ public class BobController {
         keys.put(Keys.JUMP, false);
     }
 
+    private Array<Block> collidable = new Array<Block>();
+    private Pool<Rectangle> rectPool = new Pool<Rectangle>() {
+        @Override
+        protected Rectangle newObject() {
+            return new Rectangle();
+        }
+    };
     private World world;
     private Bob bob;
     private long jumpPressedTime;
@@ -44,6 +55,7 @@ public class BobController {
         bob.getAcceleration().y = GRAVITY;
         bob.getAcceleration().scl(delta);
         bob.getVelocity().add(bob.getAcceleration().x, bob.getAcceleration().y);
+        checkCollisionWithBlocks(delta);
         if (bob.getAcceleration().x == 0) bob.getVelocity().x *= DAMP;
         if (bob.getVelocity().x > MAX_VEL) {
             bob.getVelocity().x = MAX_VEL;
@@ -53,6 +65,11 @@ public class BobController {
         }
 
         bob.update(delta);
+
+        if (bob.getVelocity().y == 0 && bob.getState().equals(Bob.State.JUMPING)) {
+            bob.setState(Bob.State.IDLE);
+        }
+
         if (bob.getPosition().y < 0) {
             bob.getPosition().y = 0f;
             bob.setPosition(bob.getPosition());
@@ -74,6 +91,77 @@ public class BobController {
             bob.setPosition(bob.getPosition());
             if (!bob.getState().equals(Bob.State.JUMPING)) {
                 bob.setState(Bob.State.IDLE);
+            }
+        }
+
+        System.out.println(bob.getVelocity());
+    }
+
+    private void checkCollisionWithBlocks(float delta) {
+        bob.getVelocity().scl(delta);
+        Rectangle bobRect = rectPool.obtain();
+        bobRect.set(bob.getBounds());
+
+        int startX, endX;
+        int startY = (int) bob.getBounds().y;
+        int endY = (int) (bob.getBounds().y + bob.getBounds().height);
+
+        if (bob.getVelocity().x < 0) {
+            startX = endX = (int) Math.floor(bob.getBounds().x + bob.getVelocity().x);
+        } else {
+            startX = endX = (int) Math.floor(bob.getBounds().x + bob.getBounds().width + bob.getVelocity().x);
+        }
+
+        populateCollidableBlocks(startX, startY, endX, endY);
+        bobRect.x += bob.getVelocity().x;
+        world.getCollisionRects().clear();
+        for (Block block : collidable) {
+            if (block == null) continue;
+            if (bobRect.overlaps(block.getBounds())) {
+                bob.getVelocity().x = 0;
+                world.getCollisionRects().add(block.getBounds());
+                break;
+            }
+        }
+
+        bobRect.x = bob.getPosition().x;
+        startX = (int) bob.getBounds().x;
+        endX = (int) (bob.getBounds().x + bob.getBounds().width);
+        if (bob.getVelocity().y < 0) {
+            startY = endY = (int) (bob.getBounds().y + bob.getVelocity().y);
+        } else {
+            startY = endY = (int) (bob.getBounds().y + bob.getBounds().height + bob.getVelocity().y);
+        }
+
+        populateCollidableBlocks(startX, startY, endX, endY);
+        bobRect.y += bob.getVelocity().y;
+        for (Block block : collidable) {
+            if (block == null) continue;
+            if (bobRect.overlaps(block.getBounds())) {
+                if (bobRect.y + bobRect.height <= block.getBounds().y) {
+                    jumpingPressed = false;
+                }
+                bob.getVelocity().y = 0;
+                world.getCollisionRects().add(block.getBounds());
+                break;
+            }
+        }
+
+        bobRect.y = bob.getPosition().y;
+        bob.getPosition().add(bob.getVelocity());
+        bob.getBounds().x = bob.getPosition().x;
+        bob.getBounds().y = bob.getPosition().y;
+        bob.getVelocity().scl(1 / delta);
+
+    }
+
+    private void populateCollidableBlocks(int startX, int startY, int endX, int endY) {
+        collidable.clear();
+        for (int x = startX; x <= endX; x++) {
+            for (int y = startY; y <= endY; y++) {
+                if (x >= 0 && x < world.getLevel().getWidth() && y >= 0 && y < world.getLevel().getHeight()) {
+                    collidable.add(world.getLevel().getBlocks()[x][y]);
+                }
             }
         }
     }
@@ -121,8 +209,8 @@ public class BobController {
                 bob.setState(Bob.State.WALKING);
             }
             bob.getAcceleration().x = ACCELERATION;
-        } else{
-            if (!bob.getState().equals(Bob.State.JUMPING)){
+        } else {
+            if (!bob.getState().equals(Bob.State.JUMPING)) {
                 bob.setState(Bob.State.IDLE);
             }
             bob.getAcceleration().x = 0;
